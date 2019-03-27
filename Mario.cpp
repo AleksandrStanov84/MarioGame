@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include <String>
-#include <vector>
+#include <list>
 #include <algorithm>
 
 using namespace sf;
@@ -17,54 +17,69 @@ const int H = 22;
 const int W = 150;
 
 String TileMap[H] = {
-	"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-	"0                  w                   w                                                                                                             0",
-	"0                                                     w                           w                       w                          w               0",
-	"0                                                                                                                 w                                w 0",
-	"0         w                   w             w                w        w                            w                                                 0",
-	"0                                                                            w                   w  rrr rrrrr   r   r   r rrrr r   r    w   r        0",
-	"0                             w                                                       w             rr    r    r r  rr  r r  r r   r       r r       0",
-	"0                   w                                  w                   w                      w  rr   r   r r r r r r r wr  r r   w   r r r      0",
-	"0                                      w                                                            rrr   r  wr   r r  rr rrrr   r        r   r  r   0",
-	"0                                                                                    m                                                       w       0",
-	"0       w                                                       w                                     w                            w                 0",
-	"0                      m                                                       w                                     w        m                 s    0",
-	"0               m                                                                   t0                                                          s    0",
-	"0                                        bbb                                       bbbmm                                                        s    0",
-	"0                                               bm                            s                                            bbbb                 s    0",
-	"0               m    bmbmb                                              s                                                                       s    0",
-	"0                                                   bbm                ss            bmmm                                       s       mm    m s    0",
-	"0                                                                    sssss                                      s   s           s               s    0",
-	"0                          s   s       t0                t0         sssssss   t0          s   s     t0          s   s           s   t0          s    0",
-	"GGGGGGGGGGGGGGGGGGGGGGGGGGGGcccGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGcccGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGG",
-	"GGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGG",
-	"GGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGG",
+"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+"0                  w                   w                                                                                                             0",
+"0                                                     w                           w                       w                          w               0",
+"0                                                                                                                 w                                w 0",
+"0         w                   w             w                w        w                            w                                                 0",
+"0                                                                            w                   w  rrr rrrrr   r   r   r rrrr r   r    w   r        0",
+"0                             w                                                       w             rr    r    r r  rr  r r  r r   r       r r       0",
+"0                   w                                  w                   w                      w  rr   r   r r r r r r r wr  r r   w   r r r      0",
+"0                                      w                                                            rrr   r  wr   r r  rr rrrr   r        r   r  r   0",
+"0                                                                                    m                                                       w       0",
+"0       w                                                       w                                     w                            w                 0",
+"0                      m                                                       w                                     w        m                 s    0",
+"0               m                                                                   t0                                                          s    0",
+"0                                        bbb                                       bbbmm                                                        s    0",
+"0                                               bm                            s                                            bbbb                 s    0",
+"0               m    bmbmb                                              s                                                                       s    0",
+"0                                                   bbm                ss            bmmm                                       s       mm    m s    0",
+"0                                                                    sssss                                      s   s           s               s    0",
+"0                          s   s       t0                t0         sssssss   t0          s   s     t0          s   s           s   t0          s    0",
+"GGGGGGGGGGGGGGGGGGGGGGGGGGGGcccGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGcccGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGG",
+"GGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGG",
+"GGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGG",
 };
 
-//class PICTURE
-//{
-//
-//};
+class PICTURE
+{
+private:
+	int NFrames;
+
+public:
+	float currentFrame;
+	Sprite sprite;
+
+	PICTURE(Texture& image, int NFrames):NFrames(NFrames),currentFrame(0) 
+	{
+		sprite.setTexture(image);
+	}
+
+	void update(float time)
+	{
+		currentFrame += time * 0.005;
+		if (currentFrame > NFrames)
+		{
+			currentFrame -= NFrames;
+		}
+	}
+};
 
 
-class PLAYER
+class PLAYER:public PICTURE
 {
 private:
 	float dx, dy;
 	bool onGround;
-	float currentFrame;
 
 public:
 	FloatRect rect;
-	Sprite sprite;
 
-	PLAYER(Texture &image)
+	PLAYER(Texture &image):PICTURE(image, 2)
 	{
-		sprite.setTexture(image);
 		rect = FloatRect(118 + 18, 35, 16, 28);
 		dx = 0.1;
 		dy = 0.1;
-		currentFrame = 0;
 	}
 
 	friend void fightWithEnemy(PLAYER& Mario, ENEMY& enemy);
@@ -79,14 +94,13 @@ public:
 		onGround = false;
 		Collision(1);
 
-		currentFrame += time * 0.005;
-		if (currentFrame > 2) currentFrame -= 2;
+		PICTURE::update(time);
 
 		if (dx > 0)
-			sprite.setTextureRect(IntRect(118 + 18 * int(currentFrame), 35, 16, 28));
+			sprite.setTextureRect(IntRect(118 + 18 * int(currentFrame), 36, 17, 27));
 
 		if (dx < 0)
-			sprite.setTextureRect(IntRect(118 + 18 * int(currentFrame) + 16, 35, -16, 28));
+			sprite.setTextureRect(IntRect(118 + 18 * int(currentFrame) + 17, 36, -17, 27));
 
 		sprite.setPosition(rect.left - moveX, rect.top - moveY);
 
@@ -154,22 +168,22 @@ public:
 };
 
 
-class ENEMY
+class ENEMY:public PICTURE
 {
 private:
 	float dx, dy;
-	float currentFrame;
 	bool life;
+
 public:
 	FloatRect rect;
-	Sprite sprite;
 
-	void set(Texture& image, int x, int y)
+	ENEMY(Texture& image):PICTURE(image, 2) {}
+
+	void set(int x, int y)
 	{
-		sprite.setTexture(image);
+		
 		rect = FloatRect(x, y, 16, 16);
 		dx = 0.05;
-		currentFrame = 0;
 		life = true;
 	}
 
@@ -181,10 +195,7 @@ public:
 
 		Collision();
 
-		currentFrame += time * 0.005;
-
-		if (currentFrame > 2)
-			currentFrame -= 2;
+		PICTURE::update(time);
 
 		sprite.setTextureRect(IntRect(70 + 16 * int(currentFrame), 0, 16, 16));
 
@@ -203,11 +214,13 @@ public:
 				{
 					if (dx > 0)
 					{
-						rect.left = j * 16 - rect.width; dx *= -1;
+						rect.left = j * 16 - rect.width;
+						dx *= -1;
 					}
 					else if (dx < 0)
 					{
-						rect.left = j * 16 + 16;         dx *= -1;
+						rect.left = j * 16 + 16; 
+						dx *= -1;
 					}
 				}
 			}
@@ -235,9 +248,10 @@ void fightWithEnemy(PLAYER& Mario, ENEMY& enemy)
 	}
 }
 
+
 int main()
 {
-	RenderWindow window(VideoMode(800, 350), "Mario!");//SFML works!
+	RenderWindow window(VideoMode(800, 350), "Mario!");
 
 	Texture tileSet;
 	tileSet.loadFromFile("mario_new.png");
@@ -248,34 +262,34 @@ int main()
 
 	PLAYER Mario(tileSet);
 
-	//vector<ENEMY*>enemy;
-	//vector<ENEMY*>::iterator it;
-	//enemy.push_back(new ENEMY->set(tileSet, 48 * 16, 18 * 16));
-	//enemy.push_back(new ENEMY->set(tileSet, 16 * 16, 18 * 16));
+	/*list<ENEMY*> enemy;
+	list<ENEMY*>::iterator it;
+	enemy.push_back(new ENEMY(tileSet)->set(48 * 16, 18 * 16));*/
+	
 
-	ENEMY  enemy;
-	ENEMY  enemy1;
-	ENEMY  enemy2;
-	ENEMY  enemy3;
-	ENEMY  enemy4;
-	ENEMY  enemy5;
-	ENEMY  enemy6;
-
-	// êîîðäèíàòû âðàãîâ
-	enemy.set(tileSet, 48 * 16, 18 * 16);
-	enemy1.set(tileSet, 16 * 16, 18 * 16);
-	enemy2.set(tileSet, 85 * 16, 18 * 16);
-	enemy3.set(tileSet, 105 * 16, 18 * 16);
-	enemy4.set(tileSet, 125 * 16, 18 * 16);
-	enemy5.set(tileSet, 115 * 16, 15 * 16);
-	enemy6.set(tileSet, 40 * 16, 16 * 16);
+	ENEMY  enemy(tileSet);
+	ENEMY  enemy1(tileSet);
+	ENEMY  enemy2(tileSet);
+	ENEMY  enemy3(tileSet);
+	ENEMY  enemy4(tileSet);
+	ENEMY  enemy5(tileSet);
+	ENEMY  enemy6(tileSet);
+	
+	// ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹ Ð²Ñ€Ð°Ð³Ð¾Ð²
+	enemy.set(48 * 16, 18 * 16);
+	enemy1.set(16 * 16, 18 * 16);
+	enemy2.set(85 * 16, 18 * 16);
+	enemy3.set(105 * 16, 18 * 16);
+	enemy4.set(125 * 16, 18 * 16);
+	enemy5.set(115 * 16, 15 * 16);
+	enemy6.set(40 * 16, 16 * 16);
 
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
 
-		time = time / 500;  // ðåãóëèðóåì ñêîðîñòü èãðû
+		time = time / 500;  // Ñ€ÐµÐ³ÑƒÐ»Ð¸Ñ€ÑƒÐµÐ¼ ÑÐºÐ¾Ñ€Ð¾ÑÑ‚ÑŒ Ð¸Ð³Ñ€Ñ‹
 
 		if (time > 20)
 		{
@@ -288,19 +302,34 @@ int main()
 				window.close();
 		}
 
-		// äâèæåíèå Ìàðèî
+		// Ð´Ð²Ð¸Ð¶ÐµÐ½Ð¸Ðµ ÐœÐ°Ñ€Ð¸Ð¾
 		Mario.MarioControlToMoveLeft();
 		Mario.MarioControlToMoveRight();
 		Mario.MarioControlToMoveUp();
 
-		Mario.update(time);
-		enemy.update(time);
-		enemy1.update(time);
-		enemy2.update(time);
-		enemy3.update(time);
-		enemy4.update(time);
-		enemy5.update(time);
-		enemy6.update(time);
+		//for(it = enemy.begin(); it != enemy.end();)
+		//{
+		//	ENEMY * e = *(it);
+		//	if(e==false)
+		//	{
+		//		it = enemy.erase(it);
+		//		delete e;
+		//	}
+		//	else it++;
+		//}
+	
+		//for (/*auto it = */enemy.begin(); it != enemy.end(); it++)	
+		//	(*it)->update(time);
+
+			Mario.update(time);
+			enemy.update(time);
+			enemy1.update(time);
+			enemy2.update(time);
+			enemy3.update(time);
+			enemy4.update(time);
+			enemy5.update(time);
+			enemy6.update(time);
+		
 
 		fightWithEnemy(Mario, enemy);
 		fightWithEnemy(Mario, enemy1);
@@ -310,7 +339,7 @@ int main()
 		fightWithEnemy(Mario, enemy5);
 		fightWithEnemy(Mario, enemy6);
 
-		// äâèæåíèå êàðòû
+		// Ð´Ð²Ð¸Ð¶ÐµÐ½Ð¸Ðµ ÐºÐ°Ñ€Ñ‚Ñ‹
 		if (Mario.rect.left > 400)
 		{
 			moveX = Mario.rect.left - 400;
